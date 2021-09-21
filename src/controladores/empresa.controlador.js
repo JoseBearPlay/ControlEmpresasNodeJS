@@ -46,7 +46,7 @@ function agregarEmpresa(req, res){
         return res.status(500).send({mensaje: 'Solo el rol de tipo empresa puede crear Empresas'});
     }
 
-    if(params.email && params.password){
+    if(params.nombre && params.password){
         empresaModel.nombre = params.nombre;
         empresaModel.password = params.password;
         empresaModel.rol = 'empresa';
@@ -54,8 +54,8 @@ function agregarEmpresa(req, res){
 
         Empresa.find({
             $or: [
-                { nomre: empresaModel.nombre},
-                { email: empresaModel.email}
+                { nombre: empresaModel.nombre},
+
             ]
         }).exec((err, empresaEncontrada)=>{
             if(err) return res.status(500).send({mensaje: 'Error en la peticion de crear la empresa'});
