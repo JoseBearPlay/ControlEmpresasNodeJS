@@ -121,10 +121,266 @@ function agregraEmpleado(req, res){
     }
 }
 
+
+function editarEmpleado(req, res){
+
+    var idEmpleado = req.params.id;
+    var params = req.body;
+
+    if(req.user.rol != 'empresa'){
+        return res.status(500).send({mensaje: 'Solo el rol de tipo empresa puede editar los usuarios'});
+    }
+    
+    Usuario.find({
+
+        nombre:params.nombre
+    
+    }).exec((err, empleadoCoincidente)=>{
+        if(err) return res.status(500).send({mensaje: 'Error en la peticion de empleado'});
+        
+        if(empleadoCoincidente && empleadoCoincidente.length >= 1){
+            return res.status(500).send({mensaje: 'Los datos ingresados ya le pertenecen a otro empleado'});
+        } else{
+
+            Usuario.findOne({
+
+                 _id: idEmpleado 
+                
+            }).exec((err, empleadoCoincidente)=>{
+                if(err) return res.status(500).send({mensaje: 'Error en la peticion'});
+               
+                if(!empleadoCoincidente) return res.status(500).send({mensaje: 'Error al editar el usuario seleccionado'});
+
+                if(empleadoCoincidente.empleadoEmpresa != req.user.nombre) return res.status(500).send({mensaje: 'Solo puedes editar los empleados de tu propia empresa'});
+ 
+                Usuario.findByIdAndUpdate(idEmpleado, params, {new: true}, (err, empleadoEditado)=>{
+                    if(err) return res.status(500).send({mensaje: 'Error en la peticion de editar'});
+                    if(!empleadoEditado) return res.status(500).send({mensaje: 'No se a podido editar al Empleado'});
+
+                    return res.status(200).send({ empleadoEditado });
+                })
+            })
+        }
+    })
+}
+
+
+function eliminarEmpleado(req, res){
+    
+    var idEmpleado = req.params.id;
+    var params = req.body;
+
+    if(req.user.rol != 'empresa'){
+        return res.status(500).send({mensaje: 'Solo el rol de tipo empresa puede eliminar empleados'});
+    }
+
+    Usuario.findOne({ 
+
+        _id: idEmpleado
+
+    }).exec((err, empleadoCoincidente)=>{
+        if(err) return res.status(500).send({mensaje: 'Error en la peticion'})
+    
+        if(!empleadoCoincidente) return res.status(500).send({mensaje: 'Error al eliminar el usuario seleccionado'});
+
+        if(empleadoCoincidente.empleadoEmpresa != req.user.nombre) return res.status(500).send({mensaje: 'Solo puedes eliminar los empleados de tu propia empresa'})
+   
+        Usuario.findOneAndDelete(idEmpleado, (err, empleadoEliminado)=>{
+            if(err) return res.status(500).send({mensaje: 'Error en la peticion'});
+            if(!empleadoEliminado) return res.status(500).send({mensaje: 'No se a podido eliminar al empleado'});
+
+            return res.status(200).send({ empleadoEliminado });
+        })
+    })
+}
+
+
+function obtenerEmpleadoID(req, res){
+
+    var empleadoId = req.params.id;
+
+    if(req.user.rol != 'empresa') {
+        return res.status(500).send({mensaje: 'Solo el rol tipo empresa puede ver empleados'});
+    }
+
+    Usuario.findOne({
+
+        _id: empleadoId
+    
+    }).exec((err, empleadoBuscado)=>{
+        if(err) return res.status(500).send({mensaje: 'Error en la peticion'})
+        
+        if(!empleadoBuscado) return res.status(500).send({mensaje: 'Error al buscar el usuario'});
+
+        if(empleadoBuscado.empleadoEmpresa != req.user.nombre) return res.status(500).send({mensaje: 'Solo puedes buscar empleados de tu propia empresa'})
+    
+        Usuario.findById(empleadoId, (err, empleadoReconocido)=>{
+            if(err) return res.status(500).send({mensaje: 'Error en la peticion'});
+            if(!empleadoReconocido) return res.status(500).send({mensaje: 'No se a podido buscar al usuario solicitado'});
+
+            return res.status(200).send({ empleadoReconocido });
+        })
+    })
+}
+
+
+function obtenerEmpleadoNombre(req, res){
+
+    var params = req.body;
+
+    if(req.user.rol != 'empresa'){
+        return res.status(500).send({mensaje: 'Solo el rol tipo empresa puede buscar empleados por nombre'});
+    }
+
+    Usuario.findOne({ 
+
+        nombre: params.nombre
+
+    }).exec((err, empleadoReconocido)=>{
+        if(err) return res.status(500).send({mensaje: 'Error en la peticion'});
+
+        if(!empleadoReconocido) return res.status(500).send({mensaje: 'No existe el nombre del usuario buscado'});
+
+        if(empleadoReconocido.empleadoEmpresa != req.user.nombre) return res.status(500).send({mensaje: 'El empleado no existe en la empresa'});
+
+        return res.status(200).send({ empleadoReconocido });
+    })
+}
+
+
+function obtenerEmpleadoPuesto(req, res){
+
+    var params = req.body;
+
+    if(req.user.rol != 'empresa'){
+        return res.status(500).send({mensaje: 'Solo el rol tipo empresa puede buscar empleadors por puesto'});
+    }
+
+    Usuario.find({ 
+
+        $or:[
+            { puesto: params.puesto, empleadoEmpresa: req.user.nombre}
+        ]
+
+    }).exec((err, empleadoReconocido)=>{
+        if(err) return res.status(500).send({mensaje: 'Error en la peticion'});
+
+        if(!empleadoReconocido) return res.status(500).send({mensaje: 'No existe el puesto dentro de la empresa'});
+
+        return res.status(200).send({ empleadoReconocido });
+    })
+}
+
+
+function obtenerEmpleadoDepartamento(req, res){
+
+    var params = req.body;
+
+    if(req.user.rol != 'empresa'){
+        return res.status(500).send({mensaje: 'Solo el rol tipo empresa puede buscar empleaos por departamento'});
+    }
+
+    Usuario.find({ 
+
+        $or:[
+            { departamento: params.departamento, empleadoEmpresa: req.user.nombre}
+        ]
+
+    }).exec((err, empleadoReconocido)=>{
+        if(err) return res.status(500).send({mensaje: 'Error en la peticion'});
+
+        if(!empleadoReconocido) return res.status(500).send({mensaje: 'No existe el puesto dentro de la empresa'});
+    
+        return res.status(200).send({ empleadoReconocido });
+    })
+}
+
+
+function obtenerEmpleados(req, res){
+    
+    var params = req.body;
+
+    if(req.user.rol != 'empresa'){
+        return res.status(500).send({mensaje: 'Solo el rol tipo empresa puede buscar empleados'});
+    }
+
+    if(params.nombre === req.user.nombre){
+
+        Usuario.find({
+            
+            empleadoEmpresa: req.user.nombre
+        
+        }).exec((err, empleadosReconocidos)=>{
+            if(err) return res.status(500).send({mensaje: 'Error en la peticion'});
+
+            if(!empleadosReconocidos) return res.status(500).send({mensaje: 'No se han podido obtener los usuarios o no posee usuarios registrados'});
+
+            return res.status(200).send({ empleadosReconocidos });
+        })
+
+    } else{
+        return res.status(500).send({ mensaje: 'Solo puedes ver empleados de tu propia empresa'});
+    }
+}
+
+
+function generarPDF(req, res){
+
+    var params = req.body;
+
+    if(req.user.rol != 'empresa'){
+        return res.status(500).send({mensaje: 'Solo el rol tipo empresa puede generar PDF'});
+    }
+
+    if(params.nombre === req.user.nombre){
+
+        Usuario.find({
+
+            empleadoEmpresa: req.user.nombre
+
+        }).exec((err, empleadoReconocido)=>{
+            if(err) return res.status(500).send({mensaje: 'Error en la peticion'});
+
+            if(!empleadoReconocido) return res.status(500).send({mensaje: 'No existen empleados para generar PDF'});
+
+            Informacion = empleadoReconocido
+
+            var doc = new pdf();
+
+            doc.pipe(fs.createWriteStream(`${req.user.nombre}.pdf`));
+
+            doc.text(`Empleados ${req.user.nombre}`,{
+                align: 'center'
+            })
+
+            doc.text(Informacion,{
+                align: 'left'
+            })
+
+            doc.end()
+        })
+
+        return res.status(200).send({mensaje:'PDF generado!'});
+
+    } else{
+        return res.status(500).send({ mensaje: 'Solo puedes generar PDF de tu propia empresa'});
+    }
+
+
+}
+
+
 module.exports = {
     ejemplo,
     Admin,
     loginAdmin,
-    agregraEmpleado
-
+    agregraEmpleado,
+    editarEmpleado,
+    eliminarEmpleado,
+    obtenerEmpleadoID,
+    obtenerEmpleadoNombre,
+    obtenerEmpleadoPuesto,
+    obtenerEmpleadoDepartamento,
+    obtenerEmpleados,
+    generarPDF
 }
