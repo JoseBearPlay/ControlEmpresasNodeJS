@@ -10,6 +10,13 @@ api.get('/ejemploEmpleados', usuario_controlador.ejemplo);
 api.get('/admin', usuario_controlador.Admin);
 api.post('/loginAdmin', usuario_controlador.loginAdmin);
 api.post('/agregraEmpleado', md_authorization.ensureAuth, usuario_controlador.agregraEmpleado);
-
+api.put('/editarEmpleado/:id', md_authorization.ensureAuth, usuario_controlador.editarEmpleado);
+api.delete('/eliminarEmpleado/:id', md_authorization.ensureAuth, usuario_controlador.eliminarEmpleado);
+api.get('/obtenerEmpleadoID/:id', md_authorization.ensureAuth, usuario_controlador.obtenerEmpleadoID);
+api.get('/obtenerEmpleadoNombre', md_authorization.ensureAuth, usuario_controlador.obtenerEmpleadoNombre)
+api.get('/obtenerEmpleadoPuesto', md_authorization.ensureAuth, usuario_controlador.obtenerEmpleadoPuesto);
+api.get('/obtenerEmpleadoDepartamento', md_authorization.ensureAuth, usuario_controlador.obtenerEmpleadoDepartamento);
+api.get('/obtenerEmpleados', md_authorization.ensureAuth, usuario_controlador.obtenerEmpleados);
+api.get('/generarPDF', md_authorization.ensureAuth, usuario_controlador.generarPDF);
 
 module.exports = api;
