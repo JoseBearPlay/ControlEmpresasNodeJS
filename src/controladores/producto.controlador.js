@@ -48,7 +48,40 @@ function agregarProducto(req, res){
     }
 }
 
+
+function ordenarProductosAscendente(req, res){
+
+    if(req.user.rol != 'empresa'){
+        return res.status(500).send({mensaje: 'Solo el rol tipo empresa puede ver los productos de la empresa'});
+    }
+
+    Producto.find().sort({stock:1}).exec((err, productos)=>{
+        if(err) return res.status(500).send({mensaje: 'Error en la peticion'});
+        if(!productos) return res.status(500).send({mensaje: 'Error al obtener los productos o no posee productos registrados en la empresa'});
+
+        return res.status(200).send({ productos });
+    })
+}
+
+
+function ordenarProductosDescendente(req, res){
+
+    if(req.user.rol != 'empresa'){
+        return res.status(500).send({mensaje: 'Solo el rol tipo empresa puede ver los productos de la empresa'});
+    }
+
+    Producto.find().sort({stock:-1}).exec((err, productos)=>{
+        if(err) return res.status(500).send({mensaje: 'Error en la peticion'});
+        if(!productos) return res.status(500).send({mensaje: 'Error al obtenet los productos o no posee productos registrados en la empresa'});
+
+        return res.status(200).send({productos});
+    })
+}
+
+
 module.exports = {
     ejemploProducto,
-    agregarProducto
+    agregarProducto,
+    ordenarProductosAscendente,
+    ordenarProductosDescendente
 }
