@@ -93,7 +93,7 @@ function agregraEmpleado(req, res){
         empleadoModel.rol = 'empleado',
         empleadoModel.puesto = params.puesto;
         empleadoModel.departamento = params.departamento;
-        empleadoModel.empleadoEmpresa = req.user.nombre;
+        empleadoModel.trabajadorEmpresa = req.user.nombre;
 
 
         Usuario.find({ 
@@ -151,7 +151,7 @@ function editarEmpleado(req, res){
                
                 if(!empleadoCoincidente) return res.status(500).send({mensaje: 'Error al editar el usuario seleccionado'});
 
-                if(empleadoCoincidente.empleadoEmpresa != req.user.nombre) return res.status(500).send({mensaje: 'Solo puedes editar los empleados de tu propia empresa'});
+                if(empleadoCoincidente.trabajadorEmpresa != req.user.nombre) return res.status(500).send({mensaje: 'Solo puedes editar los empleados de tu propia empresa'});
  
                 Usuario.findByIdAndUpdate(idEmpleado, params, {new: true}, (err, empleadoEditado)=>{
                     if(err) return res.status(500).send({mensaje: 'Error en la peticion de editar'});
@@ -183,7 +183,7 @@ function eliminarEmpleado(req, res){
     
         if(!empleadoCoincidente) return res.status(500).send({mensaje: 'Error al eliminar el usuario seleccionado'});
 
-        if(empleadoCoincidente.empleadoEmpresa != req.user.nombre) return res.status(500).send({mensaje: 'Solo puedes eliminar los empleados de tu propia empresa'})
+        if(empleadoCoincidente.trabajadorEmpresa != req.user.nombre) return res.status(500).send({mensaje: 'Solo puedes eliminar los empleados de tu propia empresa'})
    
         Usuario.findOneAndDelete(idEmpleado, (err, empleadoEliminado)=>{
             if(err) return res.status(500).send({mensaje: 'Error en la peticion'});
@@ -212,7 +212,7 @@ function obtenerEmpleadoID(req, res){
         
         if(!empleadoBuscado) return res.status(500).send({mensaje: 'Error al buscar el usuario'});
 
-        if(empleadoBuscado.empleadoEmpresa != req.user.nombre) return res.status(500).send({mensaje: 'Solo puedes buscar empleados de tu propia empresa'})
+        if(empleadoBuscado.trabajadorEmpresa != req.user.nombre) return res.status(500).send({mensaje: 'Solo puedes buscar empleados de tu propia empresa'})
     
         Usuario.findById(empleadoId, (err, empleadoReconocido)=>{
             if(err) return res.status(500).send({mensaje: 'Error en la peticion'});
@@ -241,7 +241,7 @@ function obtenerEmpleadoNombre(req, res){
 
         if(!empleadoReconocido) return res.status(500).send({mensaje: 'No existe el nombre del usuario buscado'});
 
-        if(empleadoReconocido.empleadoEmpresa != req.user.nombre) return res.status(500).send({mensaje: 'El empleado no existe en la empresa'});
+        if(empleadoReconocido.trabajadorEmpresa != req.user.nombre) return res.status(500).send({mensaje: 'El empleado no existe en la empresa'});
 
         return res.status(200).send({ empleadoReconocido });
     })
@@ -259,7 +259,7 @@ function obtenerEmpleadoPuesto(req, res){
     Usuario.find({ 
 
         $or:[
-            { puesto: params.puesto, empleadoEmpresa: req.user.nombre}
+            { puesto: params.puesto, trabajadorEmpresa: req.user.nombre}
         ]
 
     }).exec((err, empleadoReconocido)=>{
@@ -283,7 +283,7 @@ function obtenerEmpleadoDepartamento(req, res){
     Usuario.find({ 
 
         $or:[
-            { departamento: params.departamento, empleadoEmpresa: req.user.nombre}
+            { departamento: params.departamento, trabajadorEmpresa: req.user.nombre}
         ]
 
     }).exec((err, empleadoReconocido)=>{
@@ -308,7 +308,7 @@ function obtenerEmpleados(req, res){
 
         Usuario.find({
             
-            empleadoEmpresa: req.user.nombre
+            trabajadorEmpresa: req.user.nombre
         
         }).exec((err, empleadosReconocidos)=>{
             if(err) return res.status(500).send({mensaje: 'Error en la peticion'});
@@ -336,7 +336,7 @@ function generarPDF(req, res){
 
         Usuario.find({
 
-            empleadoEmpresa: req.user.nombre
+            trabajadorEmpresa: req.user.nombre
 
         }).exec((err, empleadoReconocido)=>{
             if(err) return res.status(500).send({mensaje: 'Error en la peticion'});
