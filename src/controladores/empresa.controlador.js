@@ -48,6 +48,8 @@ function agregarEmpresa(req, res){
 
     if(params.nombre && params.password){
         empresaModel.nombre = params.nombre;
+        empresaModel.direccion = params.direccion;
+        empresaModel.telefono = params.telefono;
         empresaModel.password = params.password;
         empresaModel.rol = 'empresa';
 
@@ -55,7 +57,6 @@ function agregarEmpresa(req, res){
         Empresa.find({
             $or: [
                 { nombre: empresaModel.nombre},
-
             ]
         }).exec((err, empresaEncontrada)=>{
             if(err) return res.status(500).send({mensaje: 'Error en la peticion de crear la empresa'});
