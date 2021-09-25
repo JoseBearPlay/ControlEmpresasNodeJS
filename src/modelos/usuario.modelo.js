@@ -11,7 +11,7 @@ var UsuarioSchema = Schema({
     rol: String,
     puesto: String,
     departamento: String,
-    empleadoEmpresa:{type:Schema.Types.String, ref:'empresa'}
+    trabajadorEmpresa:{type:Schema.Types.String, ref:'empresa'}
 })
 
 module.exports = mongoose.model('usuario', UsuarioSchema);
