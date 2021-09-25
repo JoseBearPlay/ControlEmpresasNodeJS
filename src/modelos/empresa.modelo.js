@@ -6,6 +6,8 @@ var Schema = mongoose.Schema;
 var EmpresaSchema = Schema({
 
     nombre: String,
+    direccion: String,
+    telefono: String,
     password: String,
     rol: String
 })
