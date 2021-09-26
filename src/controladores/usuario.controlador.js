@@ -203,24 +203,13 @@ function obtenerEmpleadoID(req, res){
         return res.status(500).send({mensaje: 'Solo el rol tipo empresa puede ver empleados'});
     }
 
-    Usuario.findOne({
+   Usuario.findById(empleadoId, (err, empleadoEncontrado)=>{
+       if(err) return res.status(500).send({mensaje: 'Error en la peticion'});
 
-        _id: empleadoId
-    
-    }).exec((err, empleadoBuscado)=>{
-        if(err) return res.status(500).send({mensaje: 'Error en la peticion'})
-        
-        if(!empleadoBuscado) return res.status(500).send({mensaje: 'Error al buscar el usuario'});
+       if(!empleadoEncontrado) return res.status(500).send({mensaje: 'No se ha podido obtener el empleado de la empresa'});
 
-        if(empleadoBuscado.trabajadorEmpresa != req.user.nombre) return res.status(500).send({mensaje: 'Solo puedes buscar empleados de tu propia empresa'})
-    
-        Usuario.findById(empleadoId, (err, empleadoReconocido)=>{
-            if(err) return res.status(500).send({mensaje: 'Error en la peticion'});
-            if(!empleadoReconocido) return res.status(500).send({mensaje: 'No se a podido buscar al usuario solicitado'});
-
-            return res.status(200).send({ empleadoReconocido });
-        })
-    })
+       return res.status(200).send({ empleadoEncontrado });
+   })
 }
 
 
@@ -304,6 +293,15 @@ function obtenerEmpleados(req, res){
         return res.status(500).send({mensaje: 'Solo el rol tipo empresa puede buscar empleados'});
     }
 
+    Usuario.find().exec((err, empleados)=>{
+        if(err) return res.status(500).send({mensaje: 'Error en la peticion'});
+
+        if(!empleados)  return res.status(500).send({mensaje: 'Error al obtener los empleados o no posee empleados en la empresa'});
+
+        return res.status(200).send({ empleados})
+    })
+
+    /*
     if(params.nombre === req.user.nombre){
 
         Usuario.find({
@@ -321,6 +319,7 @@ function obtenerEmpleados(req, res){
     } else{
         return res.status(500).send({ mensaje: 'Solo puedes ver empleados de tu propia empresa'});
     }
+    */
 }
 
 
