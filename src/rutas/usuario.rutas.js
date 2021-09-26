@@ -7,7 +7,7 @@ var md_authorization = require("../middlewares/authenticated");
 
 var api = express.Router();
 api.get('/ejemploEmpleados', usuario_controlador.ejemplo);
-api.get('/admin', usuario_controlador.Admin);
+api.get('/usuarioAdmin', usuario_controlador.usuarioAdmin);
 api.post('/loginAdmin', usuario_controlador.loginAdmin);
 api.post('/agregraEmpleado', md_authorization.ensureAuth, usuario_controlador.agregraEmpleado);
 api.put('/editarEmpleado/:id', md_authorization.ensureAuth, usuario_controlador.editarEmpleado);
