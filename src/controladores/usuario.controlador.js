@@ -1,6 +1,7 @@
 'use strict'
 
 var Usuario = require("../modelos/usuario.modelo");
+var Admin = require("../modelos/admin.modelo");
 var bcrypt = require('bcrypt-nodejs');
 var jwt = require("../servicios/jwt");
 var pdf = require('pdfkit');
@@ -12,27 +13,27 @@ function ejemplo(req, res){
     res.status(200).send({mensaje: 'El usuario se creo correctamente'});
 }
 
-function Admin(req, res){
-    var usuarioModel = new Usuario();
+function usuarioAdmin(req, res){
+    var adminModel = new Admin();
 
-    usuarioModel.usuario = 'Admin';
-    usuarioModel.password = '123456';
-    usuarioModel.rol = 'Admin';
+    adminModel.usuario = 'Admin';
+    adminModel.password = '123456';
+    adminModel.rol = 'Admin';
 
-    Usuario.findOne({usuario: usuarioModel.usuario}, (err, administradorFundado)=>{
+    Admin.findOne({usuario: adminModel.usuario}, (err, administradorFundado)=>{
         if(err) return res.status(500).send({mensaje: 'Error en la peticion'});
         if(administradorFundado){
             return console.log('Error el usuario admin ya existe');
         } else{
-            bcrypt.hash(usuarioModel.password, null, null, (err, passwordEncriptada)=>{
+            bcrypt.hash(adminModel.password, null, null, (err, passwordEncriptada)=>{
                 if(err) return res.status(500).send({mensaje: 'Error en la peticion'});
 
                 if(passwordEncriptada){
-                    usuarioModel.password = passwordEncriptada;
-                    usuarioModel.usuario = usuarioModel.usuario;
-                    usuarioModel.rol = 'Admin'
+                    adminModel.password = passwordEncriptada;
+                    adminModel.usuario = adminModel.usuario;
+                    adminModel.rol = 'Admin'
 
-                    usuarioModel.save((err, adminGuardado)=>{
+                    adminModel.save((err, adminGuardado)=>{
                         if(err) return res.status(500).send({mensaje: 'Error en la peticion de crear el administrador'});
                         if(adminGuardado){
                             return console.log('Se han guardado los datos del administrador correctamente');
@@ -53,7 +54,7 @@ function Admin(req, res){
 function loginAdmin(req, res) {
     var params = req.body;
    
-    Usuario.findOne({ usuario: params.usuario }, (err, usuarioEncontrado) => {
+    Admin.findOne({ usuario: params.usuario }, (err, usuarioEncontrado) => {
         if (err) return res.status(500).send({ mensaje: 'Error en la peticion' });
 
         if (usuarioEncontrado) {
@@ -292,16 +293,7 @@ function obtenerEmpleados(req, res){
     if(req.user.rol != 'empresa'){
         return res.status(500).send({mensaje: 'Solo el rol tipo empresa puede buscar empleados'});
     }
-
-    Usuario.find().exec((err, empleados)=>{
-        if(err) return res.status(500).send({mensaje: 'Error en la peticion'});
-
-        if(!empleados)  return res.status(500).send({mensaje: 'Error al obtener los empleados o no posee empleados en la empresa'});
-
-        return res.status(200).send({ empleados})
-    })
-
-    /*
+    
     if(params.nombre === req.user.nombre){
 
         Usuario.find({
@@ -319,7 +311,7 @@ function obtenerEmpleados(req, res){
     } else{
         return res.status(500).send({ mensaje: 'Solo puedes ver empleados de tu propia empresa'});
     }
-    */
+    
 }
 
 
@@ -371,7 +363,7 @@ function generarPDF(req, res){
 
 module.exports = {
     ejemplo,
-    Admin,
+    usuarioAdmin,
     loginAdmin,
     agregraEmpleado,
     editarEmpleado,
