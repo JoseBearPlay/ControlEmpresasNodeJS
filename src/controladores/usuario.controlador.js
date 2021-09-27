@@ -288,13 +288,13 @@ function obtenerEmpleadoDepartamento(req, res){
 
 function obtenerEmpleados(req, res){
     
-    var params = req.body;
+    var nombreEmpresa;
 
     if(req.user.rol != 'empresa'){
         return res.status(500).send({mensaje: 'Solo el rol tipo empresa puede buscar empleados'});
     }
     
-    if(params.nombre === req.user.nombre){
+    if(nombreEmpresa === req.user.nombre){
 
         Usuario.find({
             
