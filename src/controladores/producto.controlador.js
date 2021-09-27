@@ -1,5 +1,6 @@
 'use strict'
 
+const productoModelo = require("../modelos/producto.modelo");
 var Producto = require("../modelos/producto.modelo");
 
 function ejemploProducto(req, res){
@@ -81,28 +82,34 @@ function ordenarProductosDescendente(req, res){
 
 function obtenerProductos(req, res){
 
-    var params = req.body;
-
     if(req.user.rol != 'empresa'){
         return res.status(500).send({mensaje: 'Solo el rol tipo empresa puede ver los productos agregados a la empresa'});
     }
-
-    if(params.nombre === req.user.nombre){
-
-        Producto.find({ 
-
-            productoEmpresa: req.user.nombre
-        
-        }).exec((err, productosReconocidos)=>{
-            if(err) return res.status(500).send({mensaje: 'Error en la peticion'});
-
-            if(!productosReconocidos) return res.status(500).send({mensaje: 'No se han podido obtener los productos o no posee productos registrados'})
     
-            return res.status(200).send({ productosReconocidos });
-        })
-    } else{
-        return res.status(500).send({ mensaje: 'Solo puedes ver los productos de tu propia empresa'});
-    }
+    Producto.find().exec((err, productos)=>{
+        if(err) return res.status(500).send({mensaje: 'Error en la peticion de obtener los productos'});
+        if(!productos) return res.status(500).send({mensaje: 'Error al obtener los productos o no posee productos registrados en la empresa'});
+
+        return res.status(200).send({productos});
+
+    })
+}
+
+function obtenerProductosID(req, res){
+
+  var productoId = req.params.idProducto;
+
+  if(req.user.rol != 'empresa'){
+    return res.status(500).send({mensaje: 'Solo el rol tipo empresa puede ver los productos agregados a la empresa'});
+  }
+
+  Producto.findById(productoId, (err, productoEncontrado)=>{
+    if(err) return res.status(500).send({mensaje: 'Error en la peticion'});
+    
+    if(!productoEncontrado) return res.status(500).send({mensaje: 'Error al obtener el producto'});
+
+    return res.status(200).send({ productoEncontrado });
+  })
 }
 
 
@@ -153,12 +160,45 @@ function obtenerProductoProveedor(req, res){
 }
 
 
+
+function vender(req, res){
+    var idProducto = req.params.id;
+    var params = req.body;
+
+    Producto.findById(idProducto,{vendido:1},(err, productoEncontrado)=>{
+        if(err){
+            res.status(200).send({mensaje: 'Error en la peticion'});
+        } else if(productoEncontrado){
+            console.log(productoEncontrado)
+
+            var suma = Number(productoEncontrado.vendido) + Number(params.vendido);
+
+            var vendido = {vendido: suma};
+
+            Producto.findByIdAndUpdate(idProducto,vendido,{new: true},(err, productoVendido)=>{
+                if(err){ 
+                    return res.status(500).send({mensaje: 'Error en la peticion'});
+                } else if(productoVendido){
+                    res.send({productoSaliente: productoVendido});
+                } else{
+                    res.status(500).send({mensaje: 'No se pudo vender el producto'});
+                }
+                })
+        } else{
+            return res.status(500).send({ mensaje: 'No se encontro el producto a vender'});
+        }
+    })
+}
+
+
 module.exports = {
     ejemploProducto,
     agregarProducto,
     ordenarProductosAscendente,
     ordenarProductosDescendente,
     obtenerProductos,
+    obtenerProductosID,
     obtenerProductoNombre,
-    obtenerProductoProveedor
+    obtenerProductoProveedor,
+    vender
 }
