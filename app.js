@@ -23,3 +23,4 @@ app.use('/api', usuario_rutas, empresa_rutas, producto_rutas);
 
 //Exportar
 module.exports = app;
+
