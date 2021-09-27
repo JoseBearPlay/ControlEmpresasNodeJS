@@ -287,31 +287,17 @@ function obtenerEmpleadoDepartamento(req, res){
 
 
 function obtenerEmpleados(req, res){
-    
-    var nombreEmpresa;
 
     if(req.user.rol != 'empresa'){
         return res.status(500).send({mensaje: 'Solo el rol tipo empresa puede buscar empleados'});
     }
     
-    if(nombreEmpresa === req.user.nombre){
+   Usuario.find().exec((err, empleados)=>{
+       if(err) return res.status(500).send({mensaje: 'Error en la peticion'});
+       if(!empleados) return res.status(500).send({mensaje: 'Erro al obtener los empleados'});
 
-        Usuario.find({
-            
-            trabajadorEmpresa: req.user.nombre
-        
-        }).exec((err, empleadosReconocidos)=>{
-            if(err) return res.status(500).send({mensaje: 'Error en la peticion'});
-
-            if(!empleadosReconocidos) return res.status(500).send({mensaje: 'No se han podido obtener los usuarios o no posee usuarios registrados'});
-
-            return res.status(200).send({ empleadosReconocidos });
-        })
-
-    } else{
-        return res.status(500).send({ mensaje: 'Solo puedes ver empleados de tu propia empresa'});
-    }
-    
+       return res.status(200).send({empleados})
+   })
 }
 
 
